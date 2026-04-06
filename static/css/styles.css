@@ -149,9 +149,27 @@ p {
     border: 1px solid transparent;
 }
 
+.nav-inline-form {
+    margin: 0;
+}
+
+.nav-link-button {
+    padding: 0.36rem 0.72rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--primary);
+    font: inherit;
+    cursor: pointer;
+}
+
 .nav-links a:hover {
     border-color: var(--border);
     text-decoration: none;
+}
+
+.nav-link-button:hover {
+    border-color: var(--border);
 }
 
 .chip-link {

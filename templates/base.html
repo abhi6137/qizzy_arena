@@ -32,7 +32,10 @@
                         <a href="{% url 'quiz:leaderboard' %}">Leaderboard</a>
                     {% endif %}
                     <a href="{% url 'users:profile' %}">Profile</a>
-                    <a href="{% url 'users:logout' %}">Logout</a>
+                    <form method="post" action="{% url 'users:logout' %}" class="nav-inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link-button">Logout</button>
+                    </form>
                 {% else %}
                     <a href="{% url 'users:login' %}">Login</a>
                     <a href="{% url 'users:register' %}" class="chip-link">Get Started</a>

@@ -60,3 +60,14 @@ class AuthenticationFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username="newstudent")
         self.assertEqual(user.role, User.Roles.STUDENT)
+
+    def test_logout_works_with_post(self):
+        user = User.objects.create_user(username="logoutuser", password="pass12345")
+        self.client.force_login(user)
+
+        get_response = self.client.get(reverse("users:logout"))
+        self.assertEqual(get_response.status_code, 405)
+
+        post_response = self.client.post(reverse("users:logout"), follow=True)
+        self.assertEqual(post_response.status_code, 200)
+        self.assertFalse(post_response.wsgi_request.user.is_authenticated)
