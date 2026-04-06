@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Catalog | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Quiz Catalog</h1>
+    <p class="muted">Published quizzes ready for attempt.</p>
+</section>
+
+<section class="card-grid">
+    {% for quiz in quizzes %}
+        <article class="quiz-card card-panel reveal">
+            <header>
+                <span class="pill">{{ quiz.category }}</span>
+                {% if quiz.is_adaptive %}<span class="pill pill-accent">Adaptive</span>{% endif %}
+                <h3>{{ quiz.title }}</h3>
+            </header>
+            <p>{{ quiz.description|default:"No description provided."|truncatewords:32 }}</p>
+            <div class="meta-row">
+                <span>{{ quiz.active_question_count|default:quiz.total_questions }} questions</span>
+                <span>{{ quiz.time_limit_minutes }} min</span>
+            </div>
+            <div class="meta-row">
+                <span>Negative marking: {{ quiz.negative_marking_percentage }}%</span>
+                <span>Passing: {{ quiz.passing_percentage }}%</span>
+            </div>
+            <form method="post" action="{% url 'quiz:start_attempt' quiz.slug %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Start Attempt</button>
+            </form>
+        </article>
+    {% empty %}
+        <article class="card-panel">
+            <p class="muted">No quiz is currently available.</p>
+        </article>
+    {% endfor %}
+</section>
+{% endblock %}

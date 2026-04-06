@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Quizy+ | Smarter Examinations{% endblock %}
+
+{% block content %}
+<section class="hero-grid">
+    <div class="hero-copy card-glass">
+        <p class="eyebrow">Adaptive Examination Platform</p>
+        <h1>From static quizzes to intelligent assessment loops.</h1>
+        <p>Quizy+ combines adaptive difficulty, anti-cheat telemetry, and deep analytics into one streamlined exam stack for institutions and creators.</p>
+        <div class="cta-row">
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary" href="{% url 'core:dashboard' %}">Open Dashboard</a>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'users:register' %}">Create Free Account</a>
+                <a class="btn btn-ghost" href="{% url 'users:login' %}">Sign In</a>
+            {% endif %}
+        </div>
+        <div class="stat-strip">
+            <div><span>Adaptive</span><strong>3-Level Difficulty</strong></div>
+            <div><span>Security</span><strong>Timer + Tab Tracking</strong></div>
+            <div><span>Engagement</span><strong>Badges + Streaks</strong></div>
+        </div>
+    </div>
+
+    <div class="hero-side card-panel">
+        <h3>Today at a Glance</h3>
+        {% if daily_challenge %}
+            <p class="muted">Daily challenge is live</p>
+            <h4>{{ daily_challenge.quiz.title }}</h4>
+            <p>{{ daily_challenge.quiz.description|default:"New challenge available now." }}</p>
+            {% if user.is_authenticated and not user.is_admin %}
+                <form method="post" action="{% url 'quiz:daily_challenge_start' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-accent" type="submit">Attempt Daily Challenge</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <p class="muted">No daily challenge yet. Check back soon.</p>
+        {% endif %}
+
+        <div class="divider"></div>
+        <h4>Top Learners</h4>
+        <ol class="rank-list">
+            {% for user_row in leaderboard %}
+                <li>
+                    <span>{{ user_row.username }}</span>
+                    <strong>{{ user_row.points }} pts</strong>
+                </li>
+            {% empty %}
+                <li><span>No entries yet.</span></li>
+            {% endfor %}
+        </ol>
+    </div>
+</section>
+
+<section class="section-head">
+    <h2>Featured Quizzes</h2>
+    {% if user.is_authenticated and not user.is_admin %}
+        <a class="btn btn-sm btn-ghost" href="{% url 'quiz:catalog' %}">Browse All</a>
+    {% endif %}
+</section>
+
+<section class="card-grid">
+    {% for quiz in featured_quizzes %}
+        <article class="quiz-card card-panel reveal">
+            <header>
+                <span class="pill">{{ quiz.category }}</span>
+                <h3>{{ quiz.title }}</h3>
+            </header>
+            <p>{{ quiz.description|default:"No description provided."|truncatewords:28 }}</p>
+            <div class="meta-row">
+                <span>{{ quiz.active_question_count|default:quiz.total_questions }} questions</span>
+                <span>{{ quiz.time_limit_minutes }} min</span>
+            </div>
+            {% if user.is_authenticated and not user.is_admin %}
+                <form method="post" action="{% url 'quiz:start_attempt' quiz.slug %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary btn-sm" type="submit">Start Quiz</button>
+                </form>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p class="muted">No published quizzes yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

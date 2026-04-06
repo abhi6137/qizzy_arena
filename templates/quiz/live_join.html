@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Join Live Session | Quizy+{% endblock %}
+
+{% block content %}
+<section class="auth-shell card-glass">
+    <h1>Join Live Quiz</h1>
+    <p class="muted">Enter your session code shared by the host.</p>
+    <form method="post" class="form-grid">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Session Code {{ form.code }}</label>
+        <button class="btn btn-primary" type="submit">Join</button>
+    </form>
+</section>
+{% endblock %}

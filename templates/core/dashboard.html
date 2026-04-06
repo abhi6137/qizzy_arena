@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Welcome back, {{ user.first_name|default:user.username }}</h1>
+</section>
+
+{% if is_admin %}
+    <section class="metrics-grid">
+        <article class="metric card-panel"><span>Total Quizzes</span><strong>{{ admin_metrics.total_quizzes }}</strong></article>
+        <article class="metric card-panel"><span>Total Attempts</span><strong>{{ admin_metrics.total_attempts }}</strong></article>
+        <article class="metric card-panel"><span>Avg Score</span><strong>{{ admin_metrics.avg_score }}%</strong></article>
+        <article class="metric card-panel"><span>Live Participants</span><strong>{{ admin_metrics.live_participants }}</strong></article>
+    </section>
+
+    <section class="dashboard-split">
+        <article class="card-panel">
+            <div class="section-head"><h3>Your Quizzes</h3><a class="btn btn-sm btn-primary" href="{% url 'quiz:admin_quiz_create' %}">New Quiz</a></div>
+            <ul class="stack-list">
+                {% for quiz in recent_quizzes %}
+                    <li>
+                        <div>
+                            <strong>{{ quiz.title }}</strong>
+                            <p class="muted">{{ quiz.active_question_count|default:quiz.total_questions }} questions · {{ quiz.time_limit_minutes }} min</p>
+                        </div>
+                        <a class="btn btn-sm btn-ghost" href="{% url 'quiz:admin_question_list' quiz.id %}">Questions</a>
+                    </li>
+                {% empty %}
+                    <li><p class="muted">No quizzes created yet.</p></li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="card-panel">
+            <div class="section-head"><h3>Weak Topics (Global)</h3><a class="btn btn-sm btn-ghost" href="{% url 'quiz:admin_analytics' %}">Open Analytics</a></div>
+            <ul class="stack-list">
+                {% for row in admin_metrics.weak_topics %}
+                    <li>
+                        <span>{{ row.topic }}</span>
+                        <strong>{{ row.total }} misses</strong>
+                    </li>
+                {% empty %}
+                    <li><p class="muted">No weak topics yet.</p></li>
+                {% endfor %}
+            </ul>
+        </article>
+    </section>
+{% else %}
+    <section class="metrics-grid">
+        <article class="metric card-panel"><span>Quizzes Attempted</span><strong>{{ student_metrics.total_quizzes }}</strong></article>
+        <article class="metric card-panel"><span>Avg Accuracy</span><strong>{{ student_metrics.average_percentage }}%</strong></article>
+        <article class="metric card-panel"><span>Points</span><strong>{{ student_metrics.points }}</strong></article>
+        <article class="metric card-panel"><span>Current Streak</span><strong>{{ student_metrics.streak }}</strong></article>
+    </section>
+
+    <section class="dashboard-split">
+        <article class="card-panel">
+            <div class="section-head">
+                <h3>Available Quizzes</h3>
+                <a class="btn btn-sm btn-ghost" href="{% url 'quiz:catalog' %}">See all</a>
+            </div>
+            <ul class="stack-list">
+                {% for quiz in available_quizzes %}
+                    <li>
+                        <div>
+                            <strong>{{ quiz.title }}</strong>
+                            <p class="muted">{{ quiz.category }} · {{ quiz.time_limit_minutes }} min</p>
+                        </div>
+                        <form method="post" action="{% url 'quiz:start_attempt' quiz.slug %}">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-primary" type="submit">Start</button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li><p class="muted">No quizzes are currently published.</p></li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="card-panel">
+            <div class="section-head"><h3>Recent Results</h3><a class="btn btn-sm btn-ghost" href="{% url 'quiz:attempt_history' %}">History</a></div>
+            <ul class="stack-list">
+                {% for item in latest_results %}
+                    <li>
+                        <div>
+                            <strong>{{ item.attempt.quiz.title }}</strong>
+                            <p class="muted">{{ item.generated_at|date:'M d, Y H:i' }}</p>
+                        </div>
+                        <span class="pill">{{ item.percentage }}%</span>
+                    </li>
+                {% empty %}
+                    <li><p class="muted">No attempts submitted yet.</p></li>
+                {% endfor %}
+            </ul>
+        </article>
+    </section>
+{% endif %}
+{% endblock %}

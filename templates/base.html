@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quizy+{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="site-header">
+        <div class="container nav-shell">
+            <a href="{% url 'core:home' %}" class="brand">Quizy+</a>
+            <nav class="nav-links">
+                <a href="{% url 'core:home' %}">Home</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'core:dashboard' %}">Dashboard</a>
+                    {% if user.is_admin %}
+                        <a href="{% url 'quiz:admin_quiz_list' %}">Manage</a>
+                        <a href="{% url 'quiz:admin_analytics' %}">Analytics</a>
+                        <a href="{% url 'quiz:live_create' %}">Live Mode</a>
+                    {% else %}
+                        <a href="{% url 'quiz:catalog' %}">Quizzes</a>
+                        <a href="{% url 'quiz:student_analytics' %}">Progress</a>
+                        <a href="{% url 'quiz:leaderboard' %}">Leaderboard</a>
+                    {% endif %}
+                    <a href="{% url 'users:profile' %}">Profile</a>
+                    <a href="{% url 'users:logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'users:login' %}">Login</a>
+                    <a href="{% url 'users:register' %}" class="chip-link">Get Started</a>
+                {% endif %}
+            </nav>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">Theme</button>
+        </div>
+    </header>
+
+    <main class="container main-shell reveal">
+        {% if messages %}
+            <section class="message-stack">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>&copy; {{ CURRENT_YEAR }} {{ APP_NAME }}. Built for high-stakes assessments.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

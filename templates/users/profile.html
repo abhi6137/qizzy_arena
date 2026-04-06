@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile | Quizy+{% endblock %}
+
+{% block content %}
+<section class="card-panel reveal">
+    <h1>Profile</h1>
+    <p class="muted">Role: {{ user.get_role_display }} · Points: {{ user.points }} · Streak: {{ user.streak_count }}</p>
+    <form method="post" class="form-grid two-col">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>First name {{ form.first_name }} {{ form.first_name.errors }}</label>
+        <label>Last name {{ form.last_name }} {{ form.last_name.errors }}</label>
+        <label class="full-width">Email {{ form.email }} {{ form.email.errors }}</label>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+    </form>
+</section>
+{% endblock %}

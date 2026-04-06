@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attempt Quiz | Quizy+{% endblock %}
+
+{% block content %}
+<section
+    id="attemptApp"
+    class="attempt-shell"
+    data-state-url-template="{% url 'quiz:attempt_question_state' attempt.id 999999 %}"
+    data-answer-url="{% url 'quiz:attempt_save_answer' attempt.id %}"
+    data-submit-url="{% url 'quiz:attempt_submit' attempt.id %}"
+    data-event-url="{% url 'quiz:attempt_event' attempt.id %}"
+    data-result-url="{% url 'quiz:attempt_result' attempt.id %}"
+    data-max-questions="{{ max_questions }}"
+    data-remaining="{{ remaining_seconds }}"
+    data-allow-fullscreen="{{ allow_fullscreen|yesno:'1,0' }}"
+>
+    <header class="attempt-head card-panel">
+        <div>
+            <p class="eyebrow">Now Attempting</p>
+            <h1>{{ quiz.title }}</h1>
+        </div>
+        <div class="attempt-meta">
+            <div class="timer-wrap">
+                <span>Time Left</span>
+                <strong id="timer">--:--</strong>
+            </div>
+            <button id="fullscreenBtn" class="btn btn-sm btn-ghost" type="button">Enter Full Screen</button>
+            <button id="submitQuizBtn" class="btn btn-sm btn-danger" type="button">Submit</button>
+        </div>
+    </header>
+
+    <div class="progress-track"><div id="quizProgressBar" class="progress-fill"></div></div>
+
+    <div class="attempt-layout">
+        <aside class="card-panel nav-panel">
+            <h3>Question Navigator</h3>
+            <div id="questionNav" class="question-nav-grid"></div>
+            <p class="muted">Attempted items become highlighted instantly.</p>
+        </aside>
+
+        <section class="card-glass question-panel">
+            <div id="systemAlert" class="message message-warning hidden"></div>
+            <p id="questionMeta" class="question-meta"></p>
+            <h2 id="questionPrompt">Loading question...</h2>
+            <div id="optionContainer" class="option-stack"></div>
+
+            <div class="question-actions">
+                <button id="prevBtn" class="btn btn-ghost" type="button">Previous</button>
+                <button id="saveBtn" class="btn btn-accent" type="button">Save</button>
+                <button id="nextBtn" class="btn btn-primary" type="button">Next</button>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/attempt.js' %}"></script>
+{% endblock %}

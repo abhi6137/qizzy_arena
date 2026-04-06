@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Result | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>{{ quiz.title }} - Result</h1>
+    <div class="cta-row">
+        <a class="btn btn-sm btn-ghost" href="{% url 'quiz:attempt_history' %}">Back to History</a>
+        <a class="btn btn-sm btn-primary" href="{% url 'quiz:attempt_result_pdf' attempt.id %}">Export PDF</a>
+    </div>
+</section>
+
+<section class="metrics-grid">
+    <article class="metric card-panel"><span>Total Score</span><strong>{{ result.total_score }} / {{ result.max_score }}</strong></article>
+    <article class="metric card-panel"><span>Percentage</span><strong>{{ result.percentage }}%</strong></article>
+    <article class="metric card-panel"><span>Correct / Wrong</span><strong>{{ result.correct_count }} / {{ result.wrong_count }}</strong></article>
+    <article class="metric card-panel"><span>Unattempted</span><strong>{{ result.unattempted_count }}</strong></article>
+</section>
+
+<section class="card-panel">
+    <h2>Weak Areas</h2>
+    {% if result.weak_topics %}
+        <div class="pill-group">
+            {% for topic in result.weak_topics %}
+                <span class="pill pill-danger">{{ topic }}</span>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">No weak topic detected from objective answers.</p>
+    {% endif %}
+</section>
+
+<section class="card-panel">
+    <h2>Detailed Breakdown</h2>
+    <div class="answer-list">
+        {% for answer in answers %}
+            <article class="answer-item {% if answer.is_correct %}correct{% elif answer.is_correct == False %}wrong{% else %}pending{% endif %}">
+                <header>
+                    <h3>Q{{ forloop.counter }}. {{ answer.question.prompt }}</h3>
+                    <span class="pill">{{ answer.score_awarded }} pts</span>
+                </header>
+                <p class="muted">Topic: {{ answer.question.topic }} · Difficulty: {{ answer.question.get_difficulty_display }} · Time: {{ answer.time_spent_seconds }}s</p>
+
+                {% if answer.question.question_type == 'short' %}
+                    <p><strong>Your answer:</strong> {{ answer.text_answer|default:'-' }}</p>
+                    <p><strong>Expected:</strong> {{ answer.question.answer_key|default:'Manual review' }}</p>
+                {% else %}
+                    <p><strong>Your answer:</strong> {{ answer.selected_option.text|default:'Not answered' }}</p>
+                    <p>
+                        <strong>Correct answer:</strong>
+                        {% for option in answer.question.options.all %}
+                            {% if option.is_correct %}
+                                {{ option.text }}
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+
+                {% if answer.question.explanation %}
+                    <p><strong>Explanation:</strong> {{ answer.question.explanation }}</p>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>No answers were recorded.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

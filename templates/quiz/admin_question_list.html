@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Question Bank | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>{{ quiz.title }} - Question Bank</h1>
+    <div class="cta-row">
+        <a class="btn btn-ghost" href="{% url 'quiz:admin_quiz_list' %}">Back</a>
+        <a class="btn btn-primary" href="{% url 'quiz:admin_question_create' quiz.id %}">Add Question</a>
+    </div>
+</section>
+
+<section class="card-panel">
+    <h2>AI-Ready Generator (Rule-Based)</h2>
+    <form method="post" action="{% url 'quiz:admin_question_generate' quiz.id %}" class="form-grid two-col">
+        {% csrf_token %}
+        <label class="full-width">Source Text {{ generator_form.source_text }}</label>
+        <label>Question Count {{ generator_form.number_of_questions }}</label>
+        <label>Topic {{ generator_form.topic }}</label>
+        <label>Difficulty {{ generator_form.difficulty }}</label>
+        <button class="btn btn-accent" type="submit">Generate Questions</button>
+    </form>
+</section>
+
+<section class="card-grid">
+    {% for question in questions %}
+        <article class="card-panel">
+            <header class="section-head">
+                <h3>{{ question.prompt|truncatewords:16 }}</h3>
+                <span class="pill difficulty-{{ question.get_difficulty_display|lower }}">{{ question.get_difficulty_display }}</span>
+            </header>
+            <p class="muted">Type: {{ question.get_question_type_display }} · Topic: {{ question.topic }} · Marks: {{ question.marks }}</p>
+            <ul class="stack-list compact">
+                {% for option in question.options.all %}
+                    <li>
+                        <span>{{ option.text }}</span>
+                        {% if option.is_correct %}<span class="pill pill-success">Correct</span>{% endif %}
+                    </li>
+                {% empty %}
+                    <li><span class="muted">No options</span></li>
+                {% endfor %}
+            </ul>
+            <div class="cta-row">
+                <a class="btn btn-sm btn-ghost" href="{% url 'quiz:admin_question_edit' question.id %}">Edit</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'quiz:admin_question_delete' question.id %}">Delete</a>
+            </div>
+        </article>
+    {% empty %}
+        <article class="card-panel"><p class="muted">No questions yet.</p></article>
+    {% endfor %}
+</section>
+{% endblock %}

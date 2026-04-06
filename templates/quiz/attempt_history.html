@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Attempt History | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Attempt History</h1>
+    <a class="btn btn-sm btn-ghost" href="{% url 'quiz:catalog' %}">New Attempt</a>
+</section>
+
+<section class="card-panel table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Quiz</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Score</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attempt in attempts %}
+                <tr>
+                    <td>{{ attempt.quiz.title }}</td>
+                    <td><span class="pill">{{ attempt.get_status_display }}</span></td>
+                    <td>{{ attempt.started_at|date:'M d, Y H:i' }}</td>
+                    <td>
+                        {% if attempt.result %}
+                            {{ attempt.result.percentage }}%
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if attempt.status == 'in_progress' %}
+                            <a class="btn btn-sm btn-primary" href="{% url 'quiz:attempt_play' attempt.id %}">Resume</a>
+                        {% else %}
+                            <a class="btn btn-sm btn-ghost" href="{% url 'quiz:attempt_result' attempt.id %}">View Result</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No attempts yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

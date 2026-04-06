@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Badges | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Badge Gallery</h1>
+    <p class="muted">Unlock achievements as you improve and stay consistent.</p>
+</section>
+
+<section class="card-grid">
+    {% for badge in all_badges %}
+        <article class="card-panel badge-card {% if badge.id in earned_ids %}badge-earned{% else %}badge-locked{% endif %}">
+            <h3>{{ badge.name }}</h3>
+            <p>{{ badge.description|default:"Achievement badge" }}</p>
+            <p class="muted">Type: {{ badge.get_badge_type_display }} · Required points: {{ badge.points_required }}</p>
+            {% if badge.id in earned_ids %}
+                <span class="pill pill-success">Earned</span>
+            {% else %}
+                <span class="pill">Locked</span>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p class="muted">No badges configured yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Leaderboard</h1>
+    <p class="muted">Top performers by points and consistency.</p>
+</section>
+
+<section class="card-panel table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Points</th>
+                <th>Streak</th>
+                <th>Longest Streak</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_row in leaderboard %}
+                <tr>
+                    <td>#{{ forloop.counter }}</td>
+                    <td>{{ user_row.username }}</td>
+                    <td>{{ user_row.points }}</td>
+                    <td>{{ user_row.streak_count }}</td>
+                    <td>{{ user_row.longest_streak }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">Leaderboard is empty.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

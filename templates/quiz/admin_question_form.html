@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Question Form | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>{% if is_create %}Add Question{% else %}Edit Question{% endif %}</h1>
+    <a class="btn btn-sm btn-ghost" href="{% url 'quiz:admin_question_list' quiz.id %}">Back to List</a>
+</section>
+
+<section class="card-panel">
+    <form method="post" class="form-grid">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <label>Question Type {{ form.question_type }}</label>
+        <label>Topic {{ form.topic }}</label>
+        <label>Difficulty {{ form.difficulty }}</label>
+        <label>Marks {{ form.marks }}</label>
+        <label>Order {{ form.order }}</label>
+        <label>Answer Key (for short answer auto-eval) {{ form.answer_key }}</label>
+        <label class="full-width">Prompt {{ form.prompt }}</label>
+        <label class="full-width">Explanation {{ form.explanation }}</label>
+        <label class="checkbox-field">{{ form.is_active }} Active</label>
+
+        <div class="divider"></div>
+        <h3>Options (for MCQ / True-False)</h3>
+        {{ option_formset.management_form }}
+        {{ option_formset.non_form_errors }}
+        <div class="option-form-grid">
+            {% for option_form in option_formset %}
+                <div class="option-item">
+                    {{ option_form.id }}
+                    <label>Option Text {{ option_form.text }}</label>
+                    <label>Order {{ option_form.order }}</label>
+                    <label class="checkbox-field">{{ option_form.is_correct }} Correct</label>
+                    {% if option_form.DELETE %}
+                        <label class="checkbox-field">{{ option_form.DELETE }} Delete</label>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="cta-row">
+            <button class="btn btn-primary" type="submit">Save Question</button>
+            <a class="btn btn-ghost" href="{% url 'quiz:admin_question_list' quiz.id %}">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

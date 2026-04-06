@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Question | Quizy+{% endblock %}
+
+{% block content %}
+<section class="card-panel">
+    <h1>Delete Question</h1>
+    <p>Delete this question from the quiz?</p>
+    <blockquote>{{ object.prompt }}</blockquote>
+    <form method="post" class="cta-row">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Delete</button>
+        <a class="btn btn-ghost" href="{% url 'quiz:admin_question_list' object.quiz.id %}">Cancel</a>
+    </form>
+</section>
+{% endblock %}

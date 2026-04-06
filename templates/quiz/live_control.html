@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Control | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Live Session Control</h1>
+    <p class="muted">Code: <strong>{{ session.code }}</strong> · Status: <strong>{{ session.get_status_display }}</strong></p>
+</section>
+
+<section class="card-panel">
+    <h2>{{ session.quiz.title }}</h2>
+    <p class="muted">Current Question Index: {{ session.current_question_index }}</p>
+    <form method="post" class="cta-row">
+        {% csrf_token %}
+        {% if session.status == 'lobby' %}
+            <button class="btn btn-primary" name="action" value="start" type="submit">Start Session</button>
+        {% endif %}
+        {% if session.status == 'live' %}
+            <button class="btn btn-accent" name="action" value="next" type="submit">Next Question</button>
+        {% endif %}
+        {% if session.status != 'ended' %}
+            <button class="btn btn-danger" name="action" value="end" type="submit">End Session</button>
+        {% endif %}
+    </form>
+</section>
+
+<section class="card-panel table-wrap">
+    <h2>Live Leaderboard</h2>
+    <table class="table" id="liveBoardTable">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Score</th>
+                <th>Answers</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in leaderboard %}
+                <tr>
+                    <td>{{ row.user__username }}</td>
+                    <td>{{ row.score }}</td>
+                    <td>{{ row.answers_count }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3">No participants yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const endpoint = "{% url 'quiz:live_leaderboard_api' session.id %}";
+    const tableBody = document.querySelector("#liveBoardTable tbody");
+    if (!tableBody) return;
+
+    async function refreshBoard() {
+        try {
+            const response = await fetch(endpoint, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+            if (!response.ok) return;
+            const payload = await response.json();
+            const rows = payload.leaderboard || [];
+
+            tableBody.replaceChildren();
+            if (!rows.length) {
+                const emptyRow = document.createElement("tr");
+                const emptyCell = document.createElement("td");
+                emptyCell.colSpan = 3;
+                emptyCell.textContent = "No participants yet.";
+                emptyRow.appendChild(emptyCell);
+                tableBody.appendChild(emptyRow);
+                return;
+            }
+
+            rows.forEach((row) => {
+                const tr = document.createElement("tr");
+
+                const userCell = document.createElement("td");
+                userCell.textContent = String(row.user__username ?? "-");
+
+                const scoreCell = document.createElement("td");
+                scoreCell.textContent = String(row.score ?? 0);
+
+                const answersCell = document.createElement("td");
+                answersCell.textContent = String(row.answers_count ?? 0);
+
+                tr.appendChild(userCell);
+                tr.appendChild(scoreCell);
+                tr.appendChild(answersCell);
+                tableBody.appendChild(tr);
+            });
+        } catch (error) {
+            console.warn("Leaderboard polling failed", error);
+        }
+    }
+
+    setInterval(refreshBoard, 5000);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}My Analytics | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Performance Analytics</h1>
+</section>
+
+<section class="metrics-grid">
+    <article class="metric card-panel"><span>Total Quizzes</span><strong>{{ analytics.total_quizzes }}</strong></article>
+    <article class="metric card-panel"><span>Average Accuracy</span><strong>{{ analytics.average_percentage }}%</strong></article>
+    <article class="metric card-panel"><span>Points</span><strong>{{ analytics.points }}</strong></article>
+    <article class="metric card-panel"><span>Study Time</span><strong>{{ analytics.total_time_seconds }}s</strong></article>
+</section>
+
+<section class="dashboard-split">
+    <article class="card-panel">
+        <h2>Topic-Wise Accuracy</h2>
+        <div class="bar-stack">
+            {% for row in analytics.topic_stats %}
+                <div class="bar-item">
+                    <div class="bar-label">
+                        <span>{{ row.topic }}</span>
+                        <strong>{{ row.accuracy }}%</strong>
+                    </div>
+                    <div class="bar-track"><div class="bar-fill" data-progress="{{ row.accuracy }}"></div></div>
+                    <small class="muted">Avg Time: {{ row.avg_time }}s</small>
+                </div>
+            {% empty %}
+                <p class="muted">No topic analytics yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="card-panel">
+        <h2>Weak Areas</h2>
+        {% if analytics.weak_topics %}
+            <div class="pill-group">
+                {% for topic in analytics.weak_topics %}
+                    <span class="pill pill-danger">{{ topic }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">No weak areas detected.</p>
+        {% endif %}
+
+        <div class="divider"></div>
+        <h2>Recent Trend</h2>
+        <ul class="stack-list">
+            {% for point in analytics.trend %}
+                <li>
+                    <div>
+                        <strong>{{ point.quiz }}</strong>
+                        <p class="muted">{{ point.date }}</p>
+                    </div>
+                    <span class="pill">{{ point.percentage }}%</span>
+                </li>
+            {% empty %}
+                <li><p class="muted">No trend data available.</p></li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+{% endblock %}

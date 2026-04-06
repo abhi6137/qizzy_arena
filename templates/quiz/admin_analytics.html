@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Analytics | Quizy+{% endblock %}
+
+{% block content %}
+<section class="section-head">
+    <h1>Admin Analytics Dashboard</h1>
+</section>
+
+<section class="metrics-grid">
+    <article class="metric card-panel"><span>Total Quizzes</span><strong>{{ analytics.total_quizzes }}</strong></article>
+    <article class="metric card-panel"><span>Total Attempts</span><strong>{{ analytics.total_attempts }}</strong></article>
+    <article class="metric card-panel"><span>Average Score</span><strong>{{ analytics.avg_score }}%</strong></article>
+    <article class="metric card-panel"><span>Active Students</span><strong>{{ analytics.active_students }}</strong></article>
+</section>
+
+<section class="dashboard-split">
+    <article class="card-panel">
+        <h2>Quiz Health</h2>
+        <div class="bar-stack">
+            {% for quiz in analytics.quiz_health %}
+                <div class="bar-item">
+                    <div class="bar-label">
+                        <span>{{ quiz.quiz }}</span>
+                        <strong>{{ quiz.avg_percentage }}%</strong>
+                    </div>
+                    <div class="bar-track"><div class="bar-fill" data-progress="{{ quiz.avg_percentage }}"></div></div>
+                    <small class="muted">Attempts: {{ quiz.attempts }}</small>
+                </div>
+            {% empty %}
+                <p class="muted">No quiz health data yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="card-panel">
+        <h2>Most Missed Topics</h2>
+        <ul class="stack-list">
+            {% for topic in analytics.weak_topics %}
+                <li>
+                    <span>{{ topic.topic }}</span>
+                    <strong>{{ topic.total }} wrong answers</strong>
+                </li>
+            {% empty %}
+                <li><p class="muted">No missed topics yet.</p></li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+{% endblock %}
